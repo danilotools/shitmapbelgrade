@@ -1,9 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { initializeFirestore } from 'firebase/firestore';
 import { getMessaging, isSupported } from 'firebase/messaging';
 
-// Replace these values with your Firebase project config
-// (or load from environment variables via expo-constants / app.config.js)
 const firebaseConfig = {
   apiKey: 'AIzaSyD9eauwsLqA2YTEqqvl5PbJtqiIQTSIXxk',
   authDomain: 'shitmap-belgrade.firebaseapp.com',
@@ -16,7 +14,12 @@ const firebaseConfig = {
 // Prevent duplicate app initialisation on hot-reload
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-export const db = getFirestore(app);
+// Force long-polling instead of WebSockets/gRPC.
+// The Firebase JS SDK's default gRPC transport fails silently in React Native
+// production builds — long-polling is reliable across all environments.
+export const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+});
 
 // FCM is only available on native — gracefully skip on web/simulator
 export const getMessagingInstance = async () => {
