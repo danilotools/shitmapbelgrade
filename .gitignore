@@ -13,5 +13,9 @@ web-build/
 google-services.json
 GoogleService-Info.plist
 
+# Generated native folders — EAS rebuilds these from app.json/plugins
+android/
+ios/
+
 # macOS
 .DS_Store

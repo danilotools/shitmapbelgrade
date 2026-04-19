@@ -19,7 +19,9 @@
       "WebFetch(domain:expo.dev)",
       "Bash(npm uninstall *)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(npx eas-cli *)",
+      "Bash(npx expo-doctor *)"
     ]
   }
 }
