@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "896789994875",
+    "project_id": "shitmap-belgrade",
+    "storage_bucket": "shitmap-belgrade.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:896789994875:android:a1a21675973e62423f71de",
+        "android_client_info": {
+          "package_name": "com.shitmap.belgrade"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGcPxKrZ7PalHECbJEk7DfWOR1ORw1XEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

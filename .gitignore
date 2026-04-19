@@ -10,8 +10,6 @@ npm-debug.*
 *.orig.*
 web-build/
 .env
-google-services.json
-GoogleService-Info.plist
 
 # Generated native folders — EAS rebuilds these from app.json/plugins
 android/
