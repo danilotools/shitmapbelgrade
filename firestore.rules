@@ -2,8 +2,27 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if false;
+    match /pins/{pinId} {
+      // Anyone can read pins (no auth required — app is anonymous)
+      allow read: if true;
+
+      // Anyone can drop a pin — validate required fields are present and typed
+      allow create: if request.resource.data.keys().hasAll([
+                        'latitude', 'longitude', 'deviceId',
+                        'createdAt', 'expiresAt', 'removalVotes'
+                      ])
+                    && request.resource.data.latitude  is number
+                    && request.resource.data.longitude is number
+                    && request.resource.data.deviceId  is string
+                    && request.resource.data.expiresAt is number
+                    && request.resource.data.removalVotes is list;
+
+      // Only allow updating the removalVotes field (community removal)
+      allow update: if request.resource.data.diff(resource.data)
+                        .affectedKeys().hasOnly(['removalVotes']);
+
+      // Anyone can delete any pin (own-pin delete + vote threshold delete)
+      allow delete: if true;
     }
   }
 }

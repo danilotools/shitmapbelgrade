@@ -8,9 +8,6 @@ import {
   updateDoc,
   deleteDoc,
   doc,
-  query,
-  where,
-  Timestamp,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { PooPin } from '../types';
@@ -24,18 +21,13 @@ import {
 export function subscribeToPins(
   onUpdate: (pins: PooPin[]) => void,
 ): () => void {
-  const now = Date.now();
-  const q = query(
-    collection(db, PINS_COLLECTION),
-    where('expiresAt', '>', now),
-  );
-
-  return onSnapshot(q, (snapshot) => {
-    console.log('[usePins] snapshot received, docs:', snapshot.docs.length);
-    const pins: PooPin[] = snapshot.docs.map((d) => ({
-      id: d.id,
-      ...(d.data() as Omit<PooPin, 'id'>),
-    }));
+  // Fetch all pins from Firestore, filter expired ones client-side.
+  // Avoids the need for a server-side index on expiresAt.
+  return onSnapshot(collection(db, PINS_COLLECTION), (snapshot) => {
+    const now = Date.now();
+    const pins: PooPin[] = snapshot.docs
+      .map((d) => ({ id: d.id, ...(d.data() as Omit<PooPin, 'id'>) }))
+      .filter((p) => p.expiresAt > now);
     onUpdate(pins);
   }, (error) => {
     console.error('[usePins] snapshot error:', error.code, error.message);

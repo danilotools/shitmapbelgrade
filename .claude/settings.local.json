@@ -21,7 +21,9 @@
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(npx eas-cli *)",
-      "Bash(npx expo-doctor *)"
+      "Bash(npx expo-doctor *)",
+      "mcp__7f2dc969-cbf5-4657-8c26-56b436001d39__notion-search",
+      "Bash(npx firebase-tools *)"
     ]
   }
 }
