@@ -5,6 +5,7 @@
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { PooPin } from '../types';
+import { PIN_TTL_MS } from '../constants';
 
 const PROJECT_ID  = 'shitmap-belgrade';
 const API_KEY     = 'AIzaSyD9eauwsLqA2YTEqqvl5PbJtqiIQTSIXxk';
@@ -19,12 +20,21 @@ function parseDoc(doc: any): PooPin | null {
   try {
     const f  = doc.fields;
     const id = (doc.name as string).split('/').pop()!;
+
+    // Trust the server-set `createTime` rather than the writer's `createdAt`
+    // field — devices with wrong system clocks (friend's phone set to the
+    // past) would otherwise stamp `expiresAt` in the past and get filtered
+    // out by every correctly-clocked reader.
+    const serverCreatedMs = doc.createTime
+      ? new Date(doc.createTime).getTime()
+      : Number(f.createdAt?.integerValue ?? 0);
+
     return {
       id,
       latitude:      f.latitude?.doubleValue  ?? Number(f.latitude?.integerValue),
       longitude:     f.longitude?.doubleValue ?? Number(f.longitude?.integerValue),
-      createdAt:     Number(f.createdAt?.integerValue  ?? 0),
-      expiresAt:     Number(f.expiresAt?.integerValue  ?? 0),
+      createdAt:     serverCreatedMs,
+      expiresAt:     serverCreatedMs + PIN_TTL_MS,
       deviceId:      f.deviceId?.stringValue ?? '',
       removalVotes:  (f.removalVotes?.arrayValue?.values ?? [])
                        .map((v: any) => v.stringValue as string),
