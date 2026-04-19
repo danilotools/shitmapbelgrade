@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx expo:*)",
+      "Bash(convert --version)",
+      "Bash(python3 -c \"from PIL import Image; print\\('pillow ok'\\)\")",
+      "Bash(python3)",
+      "mcp__fb863c29-65b4-4955-9ceb-4c54e63be847__get_metadata",
+      "mcp__fb863c29-65b4-4955-9ceb-4c54e63be847__whoami",
+      "mcp__7f2dc969-cbf5-4657-8c26-56b436001d39__notion-create-pages",
+      "mcp__7f2dc969-cbf5-4657-8c26-56b436001d39__notion-update-page",
+      "Bash(grep -E \"\\\\.\\(ts|tsx|js|json\\)$\")",
+      "mcp__7f2dc969-cbf5-4657-8c26-56b436001d39__notion-fetch",
+      "mcp__fb863c29-65b4-4955-9ceb-4c54e63be847__get_design_context",
+      "Bash(curl -s -o /Users/superdanilo/Documents/shitmap-belgrade/assets/icons/gps-fix.png \"https://www.figma.com/api/mcp/asset/9c4774ec-c675-4a9c-bfbf-d28e88827110\")",
+      "Bash(curl -s -o /Users/superdanilo/Documents/shitmap-belgrade/assets/icons/moon.png \"https://www.figma.com/api/mcp/asset/0ec7c2dc-454a-4c4f-bbb5-ffc80fa8e1a8\")",
+      "Bash(curl -s -o /Users/superdanilo/Documents/shitmap-belgrade/assets/icons/sun.png \"https://www.figma.com/api/mcp/asset/a0b340ae-986a-4255-8c31-573217a9fb98\")",
+      "Bash(file /Users/superdanilo/Documents/shitmap-belgrade/assets/icons/*.png)"
+    ]
+  }
+}

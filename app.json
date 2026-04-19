@@ -1,0 +1,83 @@
+{
+  "expo": {
+    "name": "Pin the Poo",
+    "slug": "shitmap-belgrade",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.shitmap.belgrade",
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Pin the Poo needs your location to show nearby poo pins and warn you when you're about to step in one.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Pin the Poo needs background location access to alert you about nearby poo even when the app is in the background.",
+        "NSLocationAlwaysUsageDescription": "Pin the Poo needs background location access to alert you about nearby poo even when the app is in the background."
+      },
+      "config": {
+        "googleMapsApiKey": "AIzaSyDtSd8v7ooAtajH3TmDExZgwQu5VQYgGqU"
+      }
+    },
+    "android": {
+      "googleServicesFile": "./google-services.json",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.shitmap.belgrade",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "POST_NOTIFICATIONS",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_LOCATION"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCpoOjPdW2pH28UTShmJQ7rx_pNZz0izZc"
+        }
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Pin the Poo needs your location to show nearby poo pins and warn you when you're about to step in one.",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#ffffff",
+          "sounds": []
+        }
+      ],
+      "expo-asset",
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "75a488bf-18d2-40f0-9e23-43e8a78b5876"
+      }
+    },
+    "owner": "danilo1731"
+  }
+}
