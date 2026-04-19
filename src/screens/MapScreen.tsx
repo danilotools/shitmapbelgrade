@@ -71,7 +71,7 @@ export function MapScreen() {
   const [settingsPressed, setSettingsPressed] = useState(false);
 
   const location = useLocation();
-  const pins = usePins();
+  const { pins, refresh: refreshPins } = usePins();
 
   const userCoord =
     location.latitude !== null && location.longitude !== null
@@ -189,6 +189,7 @@ export function MapScreen() {
       await recordDrop();
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       await refreshDropsLeft();
+      refreshPins();
     } catch (e) {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert(t.error, t.dropError);
