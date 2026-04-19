@@ -15,7 +15,11 @@
       "Bash(curl -s -o /Users/superdanilo/Documents/shitmap-belgrade/assets/icons/gps-fix.png \"https://www.figma.com/api/mcp/asset/9c4774ec-c675-4a9c-bfbf-d28e88827110\")",
       "Bash(curl -s -o /Users/superdanilo/Documents/shitmap-belgrade/assets/icons/moon.png \"https://www.figma.com/api/mcp/asset/0ec7c2dc-454a-4c4f-bbb5-ffc80fa8e1a8\")",
       "Bash(curl -s -o /Users/superdanilo/Documents/shitmap-belgrade/assets/icons/sun.png \"https://www.figma.com/api/mcp/asset/a0b340ae-986a-4255-8c31-573217a9fb98\")",
-      "Bash(file /Users/superdanilo/Documents/shitmap-belgrade/assets/icons/*.png)"
+      "Bash(file /Users/superdanilo/Documents/shitmap-belgrade/assets/icons/*.png)",
+      "WebFetch(domain:expo.dev)",
+      "Bash(npm uninstall *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
     ]
   }
 }
