@@ -44,9 +44,12 @@ import { getDarkModePreference, setDarkModePreference } from '../services/darkMo
 const BELGRADE_REGION = {
   latitude: 44.8176,
   longitude: 20.4569,
-  latitudeDelta: 0.05,
-  longitudeDelta: 0.05,
+  latitudeDelta: 0.18,  // wider pre-GPS view — covers most of Belgrade so pins are visible
+  longitudeDelta: 0.18,
 };
+
+// Include pins within this radius of the user when auto-fitting the first view.
+const INITIAL_FIT_RADIUS_M = 20_000;
 
 export function MapScreen() {
   const mapRef = useRef<MapView>(null);
@@ -118,22 +121,41 @@ export function MapScreen() {
     refreshDropsLeft();
   }, [refreshDropsLeft]);
 
-  // Pan to user when location first available
+  // First-view auto-fit: once GPS locks, fit the map so the user AND every
+  // pin within INITIAL_FIT_RADIUS_M of them is visible. Prevents the old
+  // behavior where we'd snap to a 500m window and hide pins a few blocks away.
+  const didInitialFitRef = useRef(false);
   useEffect(() => {
-    if (userCoord && mapRef.current) {
+    if (didInitialFitRef.current) return;
+    if (!userCoord || !mapRef.current) return;
+
+    const nearbyPinCoords = pins
+      .filter(
+        (p) =>
+          haversineDistance(userCoord, { latitude: p.latitude, longitude: p.longitude }) <=
+          INITIAL_FIT_RADIUS_M,
+      )
+      .map((p) => ({ latitude: p.latitude, longitude: p.longitude }));
+
+    if (nearbyPinCoords.length > 0) {
+      mapRef.current.fitToCoordinates([userCoord, ...nearbyPinCoords], {
+        edgePadding: { top: 140, right: 60, bottom: 220, left: 60 },
+        animated: true,
+      });
+    } else {
       mapRef.current.animateToRegion(
-        { ...userCoord, latitudeDelta: 0.005, longitudeDelta: 0.005 },
+        { ...userCoord, latitudeDelta: 0.03, longitudeDelta: 0.03 },
         600,
       );
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userCoord?.latitude === null]);
+    didInitialFitRef.current = true;
+  }, [userCoord, pins]);
 
   const handleLocateMe = useCallback(() => {
     if (!userCoord || !mapRef.current) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     mapRef.current.animateToRegion(
-      { ...userCoord, latitudeDelta: 0.005, longitudeDelta: 0.005 },
+      { ...userCoord, latitudeDelta: 0.03, longitudeDelta: 0.03 },
       400,
     );
   }, [userCoord]);
