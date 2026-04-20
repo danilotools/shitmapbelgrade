@@ -2,7 +2,7 @@
  * A single 💩 map marker.
  * When `isNearby` is true the emoji gently pulses in size.
  */
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { Marker } from 'react-native-maps';
 import { PooPin as PooPinType } from '../types';
@@ -16,6 +16,15 @@ interface Props {
 
 export function PooPinMarker({ pin, onPress, isNearby = false, opacity = 1 }: Props) {
   const scale = useRef(new Animated.Value(1)).current;
+
+  // react-native-maps on Android renders a blank marker if tracksViewChanges
+  // is false on mount — it snapshots the native view before the child emoji
+  // has drawn. Keep tracking on briefly, then flip off for performance.
+  const [tracking, setTracking] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setTracking(false), 800);
+    return () => clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     if (!isNearby) {
@@ -46,7 +55,7 @@ export function PooPinMarker({ pin, onPress, isNearby = false, opacity = 1 }: Pr
     <Marker
       coordinate={{ latitude: pin.latitude, longitude: pin.longitude }}
       onPress={() => onPress(pin)}
-      tracksViewChanges={isNearby}
+      tracksViewChanges={tracking || isNearby}
       anchor={{ x: 0.5, y: 0.5 }}
       calloutEnabled={false}
     >
