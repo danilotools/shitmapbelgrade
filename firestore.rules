@@ -15,7 +15,13 @@ service cloud.firestore {
                     && request.resource.data.longitude is number
                     && request.resource.data.deviceId  is string
                     && request.resource.data.expiresAt is number
-                    && request.resource.data.removalVotes is list;
+                    && request.resource.data.removalVotes is list
+                    // level is optional (legacy pins pre-danger-slider) but
+                    // when present must be a small positive integer.
+                    && (!('level' in request.resource.data.keys())
+                        || (request.resource.data.level is int
+                            && request.resource.data.level >= 1
+                            && request.resource.data.level <= 5));
 
       // Only allow updating the removalVotes field (community removal)
       allow update: if request.resource.data.diff(resource.data)

@@ -51,6 +51,11 @@ export function PooPinMarker({ pin, onPress, isNearby = false, opacity = 1 }: Pr
     return () => animation.stop();
   }, [isNearby, scale]);
 
+  // Danger-level 1-5 scales the emoji from small to enormous. Legacy pins
+  // without a level fall back to 3 (medium) via type-level default.
+  const level = Math.max(1, Math.min(5, pin.level ?? 3));
+  const fontSize = 20 + (level - 1) * 5; // 20,25,30,35,40
+
   return (
     <Marker
       coordinate={{ latitude: pin.latitude, longitude: pin.longitude }}
@@ -60,7 +65,7 @@ export function PooPinMarker({ pin, onPress, isNearby = false, opacity = 1 }: Pr
       calloutEnabled={false}
     >
       <View style={[styles.container, { opacity }]}>
-        <Animated.Text style={[styles.emoji, { transform: [{ scale }] }]}>
+        <Animated.Text style={[styles.emoji, { fontSize, transform: [{ scale }] }]}>
           💩
         </Animated.Text>
       </View>
@@ -72,8 +77,8 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 44,
-    height: 44,
+    width: 56,
+    height: 56,
   },
   emoji: {
     fontSize: 28,

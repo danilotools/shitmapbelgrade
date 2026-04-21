@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import Constants from 'expo-constants';
 import { Language, LANGUAGE_OPTIONS, translations } from '../i18n/translations';
 import { LanguagePickerModal } from './LanguagePickerModal';
 import { PooPin } from '../types';
+import { useDragToClose } from '../hooks/useDragToClose';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -127,22 +128,9 @@ export function MenuSheet({
   const t = translations[language];
   const th = buildTheme(isDark);
   const insets = useSafeAreaInsets();
-  const slideAnim = useRef(new Animated.Value(600)).current;
+  const { translateY, panHandlers } = useDragToClose(visible, onClose);
   const [addresses, setAddresses] = useState<Record<string, string>>({});
   const [langPickerOpen, setLangPickerOpen] = useState(false);
-
-  useEffect(() => {
-    if (visible) {
-      slideAnim.setValue(600);
-      Animated.spring(slideAnim, {
-        toValue: 0,
-        useNativeDriver: true,
-        damping: 22,
-        mass: 0.9,
-        stiffness: 220,
-      }).start();
-    }
-  }, [visible, slideAnim]);
 
   useEffect(() => {
     if (!visible || myPins.length === 0) return;
@@ -173,14 +161,14 @@ export function MenuSheet({
         <Animated.View
           style={[
             styles.sheet,
-            { backgroundColor: th.bg, transform: [{ translateY: slideAnim }] },
+            { backgroundColor: th.bg, transform: [{ translateY }] },
           ]}
         >
-          {/* Handle */}
-          <View style={[styles.handle, { backgroundColor: th.handle }]} />
-
-          {/* Title */}
-          <Text style={[styles.title, { color: th.title }]}>{t.menuTitle}</Text>
+          {/* Drag region — handle + title respond to downward pan */}
+          <View {...panHandlers}>
+            <View style={[styles.handle, { backgroundColor: th.handle }]} />
+            <Text style={[styles.title, { color: th.title }]}>{t.menuTitle}</Text>
+          </View>
 
           <ScrollView
             style={{ maxHeight: SCREEN_HEIGHT * 0.62 }}

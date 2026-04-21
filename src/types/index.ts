@@ -6,6 +6,8 @@ export interface PooPin {
   expiresAt: number; // Unix timestamp ms — createdAt + 48h
   deviceId: string;
   removalVotes: string[]; // array of deviceIds that voted to remove
+  /** Danger level 1-5. 1 = tiny, 5 = enormous. Legacy pins may not have it. */
+  level?: number;
 }
 
 export interface Coordinate {

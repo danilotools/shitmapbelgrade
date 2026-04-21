@@ -38,6 +38,8 @@ function parseDoc(doc: any): PooPin | null {
       deviceId:      f.deviceId?.stringValue ?? '',
       removalVotes:  (f.removalVotes?.arrayValue?.values ?? [])
                        .map((v: any) => v.stringValue as string),
+      level:         Math.max(1, Math.min(5,
+                       Number(f.level?.integerValue ?? f.level?.doubleValue ?? 3))),
     };
   } catch {
     return null;

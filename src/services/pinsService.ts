@@ -39,8 +39,10 @@ export async function dropPin(
   latitude: number,
   longitude: number,
   deviceId: string,
+  level: number = 3,
 ): Promise<string> {
   const now = Date.now();
+  const clampedLevel = Math.max(1, Math.min(5, Math.round(level)));
   const docRef = await addDoc(collection(db, PINS_COLLECTION), {
     latitude,
     longitude,
@@ -48,6 +50,7 @@ export async function dropPin(
     expiresAt: now + PIN_TTL_MS,
     deviceId,
     removalVotes: [],
+    level: clampedLevel,
   });
   return docRef.id;
 }

@@ -69,6 +69,14 @@ export interface Translations {
   markAsGone: string;
   youReported: string;
   confirmationsNeeded: (n: number) => string;
+
+  // Danger-level sheet (shown right before a pin is dropped)
+  dangerLevelTitle: string;
+  dangerLevelHint: string;
+  dangerLevelLabels: [string, string, string, string, string];
+  confirmDrop: string;
+  cancel: string;
+  levelSuffix: (n: number) => string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -141,6 +149,13 @@ export const translations: Record<Language, Translations> = {
     markAsGone: '🧹 Mark as gone',
     youReported: '✓ You reported this',
     confirmationsNeeded: (n) => `${n} more ${n === 1 ? 'confirmation' : 'confirmations'} needed`,
+
+    dangerLevelTitle: 'How big is it?',
+    dangerLevelHint: 'Slide to set the danger level',
+    dangerLevelLabels: ['Tiny', 'Small', 'Medium', 'Big', 'Enormous — watch out!'],
+    confirmDrop: 'Drop the pin',
+    cancel: 'Cancel',
+    levelSuffix: (n) => `Level ${n}`,
   },
 
   // ── Serbian ────────────────────────────────────────────────────────────────
@@ -175,7 +190,7 @@ export const translations: Record<Language, Translations> = {
     getStarted: 'Počni',
     settingUp: 'Podešavanje...',
 
-    pinThePoo: 'Pinuj kaku 💩',
+    pinThePoo: 'Pinuj kaku',
 
     acquiringGps: 'Tražim GPS...',
     noLocation: 'Nema lokacije',
@@ -211,6 +226,13 @@ export const translations: Record<Language, Translations> = {
     markAsGone: '🧹 Označi kao uklonjeno',
     youReported: '✓ Već si prijavio ovo',
     confirmationsNeeded: (n) => `Još ${n} ${n === 1 ? 'potvrda' : 'potvrde'} potrebno`,
+
+    dangerLevelTitle: 'Koliko je velika?',
+    dangerLevelHint: 'Pomeri klizač da podesiš nivo opasnosti',
+    dangerLevelLabels: ['Malecka', 'Mala', 'Srednja', 'Velika', 'Ogromna — pazi!'],
+    confirmDrop: 'Pinuj',
+    cancel: 'Otkaži',
+    levelSuffix: (n) => `Nivo ${n}`,
   },
 
   // ── Spanish ────────────────────────────────────────────────────────────────
@@ -281,6 +303,13 @@ export const translations: Record<Language, Translations> = {
     markAsGone: '🧹 Marcar como desaparecido',
     youReported: '✓ Ya lo reportaste',
     confirmationsNeeded: (n) => `${n} confirmación${n === 1 ? '' : 'es'} más necesaria${n === 1 ? '' : 's'}`,
+
+    dangerLevelTitle: '¿Qué tan grande es?',
+    dangerLevelHint: 'Desliza para ajustar el nivel de peligro',
+    dangerLevelLabels: ['Diminuto', 'Pequeño', 'Mediano', 'Grande', 'Enorme — ¡cuidado!'],
+    confirmDrop: 'Dejar el pin',
+    cancel: 'Cancelar',
+    levelSuffix: (n) => `Nivel ${n}`,
   },
 
   // ── Italian ────────────────────────────────────────────────────────────────
@@ -351,6 +380,13 @@ export const translations: Record<Language, Translations> = {
     markAsGone: '🧹 Segna come rimosso',
     youReported: '✓ Hai già segnalato questo',
     confirmationsNeeded: (n) => `Ancora ${n} conferma${n === 1 ? '' : 'e'} necessari${n === 1 ? 'a' : 'e'}`,
+
+    dangerLevelTitle: "Quanto è grande?",
+    dangerLevelHint: 'Scorri per impostare il livello di pericolo',
+    dangerLevelLabels: ['Minuscola', 'Piccola', 'Media', 'Grande', 'Enorme — attento!'],
+    confirmDrop: 'Lascia il pin',
+    cancel: 'Annulla',
+    levelSuffix: (n) => `Livello ${n}`,
   },
 
   // ── German ─────────────────────────────────────────────────────────────────
@@ -421,6 +457,13 @@ export const translations: Record<Language, Translations> = {
     markAsGone: '🧹 Als entfernt markieren',
     youReported: '✓ Du hast dies bereits gemeldet',
     confirmationsNeeded: (n) => `Noch ${n} Bestätigung${n === 1 ? '' : 'en'} benötigt`,
+
+    dangerLevelTitle: 'Wie groß ist er?',
+    dangerLevelHint: 'Schieberegler zum Einstellen der Gefahrenstufe',
+    dangerLevelLabels: ['Winzig', 'Klein', 'Mittel', 'Groß', 'Riesig — Vorsicht!'],
+    confirmDrop: 'Pin setzen',
+    cancel: 'Abbrechen',
+    levelSuffix: (n) => `Stufe ${n}`,
   },
 
   // ── French ─────────────────────────────────────────────────────────────────
@@ -491,5 +534,12 @@ export const translations: Record<Language, Translations> = {
     markAsGone: '🧹 Marquer comme disparu',
     youReported: '✓ Tu as déjà signalé ceci',
     confirmationsNeeded: (n) => `Encore ${n} confirmation${n === 1 ? '' : 's'} nécessaire${n === 1 ? '' : 's'}`,
+
+    dangerLevelTitle: 'Elle fait quelle taille ?',
+    dangerLevelHint: 'Glisse pour régler le niveau de danger',
+    dangerLevelLabels: ['Minuscule', 'Petite', 'Moyenne', 'Grande', 'Énorme — attention !'],
+    confirmDrop: "Poser l'épingle",
+    cancel: 'Annuler',
+    levelSuffix: (n) => `Niveau ${n}`,
   },
 };

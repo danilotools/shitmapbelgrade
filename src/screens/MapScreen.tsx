@@ -27,6 +27,7 @@ import { PooPinMarker } from '../components/PooPin';
 import { DropButton } from '../components/DropButton';
 import { PinDetailSheet } from '../components/PinDetailSheet';
 import { MenuSheet } from '../components/MenuSheet';
+import { DangerLevelSheet } from '../components/DangerLevelSheet';
 
 import { dropPin, voteToRemovePin } from '../services/pinsService';
 import { canDropPin, recordDrop, remainingDrops, refundDrop } from '../services/spamProtection';
@@ -58,6 +59,7 @@ export function MapScreen() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [deviceId, setDeviceId] = useState('');
   const [dropping, setDropping] = useState(false);
+  const [dangerSheetVisible, setDangerSheetVisible] = useState(false);
   const [selectedPin, setSelectedPin] = useState<PooPin | null>(null);
   const [dropsLeft, setDropsLeft] = useState<number>(SPAM_MAX_PINS);
 
@@ -194,6 +196,8 @@ export function MapScreen() {
     },
   });
 
+  // Tapping the drop button first opens the danger-level sheet. The actual
+  // pin drop happens inside handleConfirmDrop once the user picks a level.
   const handleDrop = useCallback(async () => {
     if (!userCoord) {
       Alert.alert(t.noLocation, t.waitingForGps);
@@ -205,9 +209,15 @@ export function MapScreen() {
       Alert.alert(t.slowDown, t.spamLimit);
       return;
     }
+    setDangerSheetVisible(true);
+  }, [userCoord, t]);
+
+  const handleConfirmDrop = useCallback(async (level: number) => {
+    setDangerSheetVisible(false);
+    if (!userCoord) return;
     setDropping(true);
     try {
-      await dropPin(userCoord.latitude, userCoord.longitude, deviceId);
+      await dropPin(userCoord.latitude, userCoord.longitude, deviceId, level);
       await recordDrop();
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       await refreshDropsLeft();
@@ -218,7 +228,7 @@ export function MapScreen() {
     } finally {
       setDropping(false);
     }
-  }, [userCoord, deviceId, refreshDropsLeft]);
+  }, [userCoord, deviceId, refreshDropsLeft, refreshPins, t]);
 
   const handleDeleteOwn = useCallback(
     async (pin: PooPin) => {
@@ -387,6 +397,15 @@ export function MapScreen() {
         onDeleteOwn={handleDeleteOwn}
         deviceId={deviceId}
         language={language}
+        isDark={isDark}
+      />
+
+      <DangerLevelSheet
+        visible={dangerSheetVisible}
+        onConfirm={handleConfirmDrop}
+        onClose={() => setDangerSheetVisible(false)}
+        language={language}
+        isDark={isDark}
       />
 
       <MenuSheet

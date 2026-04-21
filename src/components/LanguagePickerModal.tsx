@@ -6,10 +6,12 @@ import {
   TouchableOpacity,
   Modal,
   FlatList,
-  Platform,
+  Pressable,
+  Animated,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Language, LANGUAGE_OPTIONS } from '../i18n/translations';
+import { useDragToClose } from '../hooks/useDragToClose';
 
 interface Props {
   visible: boolean;
@@ -56,20 +58,28 @@ function buildTheme(dark: boolean) {
 export function LanguagePickerModal({ visible, current, onSelect, onClose, isDark = false }: Props) {
   const th = buildTheme(isDark);
   const insets = useSafeAreaInsets();
+  const { translateY, panHandlers } = useDragToClose(visible, onClose);
 
   return (
     <Modal
       transparent
       visible={visible}
-      animationType="slide"
+      animationType="fade"
       onRequestClose={onClose}
     >
       <View style={[styles.overlay, { backgroundColor: th.overlay }]}>
-        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
 
-        <View style={[styles.sheet, { backgroundColor: th.bg }]}>
-          <View style={[styles.handle, { backgroundColor: th.handle }]} />
-          <Text style={[styles.title, { color: th.title }]}>🌍</Text>
+        <Animated.View
+          style={[
+            styles.sheet,
+            { backgroundColor: th.bg, transform: [{ translateY }] },
+          ]}
+        >
+          <View {...panHandlers}>
+            <View style={[styles.handle, { backgroundColor: th.handle }]} />
+            <Text style={[styles.title, { color: th.title }]}>🌍</Text>
+          </View>
 
           <FlatList
             data={LANGUAGE_OPTIONS}
@@ -113,7 +123,7 @@ export function LanguagePickerModal({ visible, current, onSelect, onClose, isDar
               <Text style={[styles.cancelText, { color: th.cancelText }]}>Cancel</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );
