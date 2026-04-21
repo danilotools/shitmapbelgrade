@@ -33,6 +33,12 @@ export async function getCurrentLocation(): Promise<Location.LocationObject | nu
 
 /** Start battery-efficient background location updates (significant-change equivalent). */
 export async function startBackgroundLocationUpdates(): Promise<void> {
+  // Only fire up the background service if the user has already granted at
+  // least foreground location permission. Otherwise the call throws and the
+  // app crash-loops on launch.
+  const { status } = await Location.getForegroundPermissionsAsync();
+  if (status !== 'granted') return;
+
   const hasTask = await TaskManager.isTaskRegisteredAsync(BACKGROUND_LOCATION_TASK);
   if (hasTask) return;
 
@@ -42,8 +48,8 @@ export async function startBackgroundLocationUpdates(): Promise<void> {
     deferredUpdatesInterval: 5000,
     showsBackgroundLocationIndicator: false,
     foregroundService: {
-      notificationTitle: 'Shitmap',
-      notificationBody: 'Watching for nearby poo...',
+      notificationTitle: 'Pin the Poo',
+      notificationBody: "Watching for 💩 nearby so you don't step in it.",
       notificationColor: '#121212',
     },
     pausesUpdatesAutomatically: true, // iOS: pause when stationary

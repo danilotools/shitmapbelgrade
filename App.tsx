@@ -56,6 +56,13 @@ export default function App() {
       setLanguage(storedLang);
       setOnboardingDone(done === 'true');
       setIsDark(dark);
+
+      // Re-arm the background proximity task on every cold launch. The OS may
+      // have torn it down (low-memory kill, force-stop). No-op if it's still
+      // registered or if foreground location permission isn't granted yet.
+      if (done === 'true') {
+        await startBackgroundLocationUpdates().catch(() => {});
+      }
     })();
   }, []);
 

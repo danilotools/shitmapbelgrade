@@ -56,6 +56,10 @@ export async function sendProximityAlert(
         title: '💩 POO nearby — watch your step!',
         body: `${direction}, ${Math.round(distanceM)}m`,
         sound: true,
+        // Route through the high-importance channel we set up in
+        // setupNotificationChannel() so the alert shows as a heads-up
+        // notification on Android 8+.
+        ...(Platform.OS === 'android' ? { channelId: 'proximity' } : {}),
       },
       trigger: null,
     });

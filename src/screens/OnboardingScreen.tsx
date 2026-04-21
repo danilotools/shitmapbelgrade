@@ -66,6 +66,9 @@ export function OnboardingScreen({ language, onDone, isDark = false }: Props) {
 
   const handleGetStarted = async () => {
     setLoading(true);
+    // Order matters: location first so the user sees the rationale while the
+    // map context is still in view, then notifications. Both dialogs are
+    // native and queue cleanly on Android 13+ and iOS.
     await requestLocationPermissions();
     await requestNotificationPermissions();
     setLoading(false);
@@ -130,11 +133,9 @@ export function OnboardingScreen({ language, onDone, isDark = false }: Props) {
           </Text>
         </TouchableOpacity>
 
-        {!isLast && (
-          <TouchableOpacity onPress={onDone} style={styles.skipBtn}>
-            <Text style={[styles.skipText, { color: th.skipText }]}>{t.skip}</Text>
-          </TouchableOpacity>
-        )}
+        {/* Skip removed on purpose — the final slide has to request location
+            + notification permissions, and skipping silently left users with
+            notifications disabled. Onboarding is only 4 short slides. */}
       </View>
     </SafeAreaView>
   );
