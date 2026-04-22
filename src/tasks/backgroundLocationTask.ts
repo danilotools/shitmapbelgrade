@@ -21,7 +21,6 @@ import { haversineDistance, bearingTo, relativeDirection } from '../utils/geo';
 import { sendProximityAlert } from '../services/notificationService';
 import { shouldAlertForPin, markAlertedForPin } from '../services/notificationDedupe';
 import { getDeviceId } from '../services/deviceId';
-import { getNotificationsEnabled } from '../services/notificationPreference';
 
 const PROJECT_ID = 'shitmap-belgrade';
 const API_KEY    = 'AIzaSyD9eauwsLqA2YTEqqvl5PbJtqiIQTSIXxk';
@@ -81,9 +80,8 @@ TaskManager.defineTask(BACKGROUND_LOCATION_TASK, async ({ data, error }) => {
   const latest = locations?.[locations.length - 1];
   if (!latest) return;
 
-  // Respect the in-app notifications toggle — if the user turned alerts off
-  // in settings we still receive location updates but don't fire alerts.
-  if (!(await getNotificationsEnabled())) return;
+  // Proximity alerts are a core feature — always on whenever the OS wakes us.
+  // No user-facing toggle gates this path any more.
 
   const userCoord = {
     latitude: latest.coords.latitude,

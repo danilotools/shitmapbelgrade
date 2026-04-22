@@ -21,14 +21,13 @@ export function useProximityAlerts(
   userHeading: number,
   pins: PooPin[],
   deviceId: string,
-  enabled: boolean = true,
 ): void {
   // In-memory guard so we don't re-check dedupe storage every single location
   // tick while the user is standing still inside a pin's radius.
   const inRadiusRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    if (!userCoord || !enabled) return;
+    if (!userCoord) return;
 
     const nowInside = new Set<string>();
 
@@ -59,5 +58,5 @@ export function useProximityAlerts(
     }
 
     inRadiusRef.current = nowInside;
-  }, [userCoord, userHeading, pins, deviceId, enabled]);
+  }, [userCoord, userHeading, pins, deviceId]);
 }

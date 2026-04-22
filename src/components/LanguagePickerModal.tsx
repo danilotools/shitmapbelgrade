@@ -76,7 +76,7 @@ export function LanguagePickerModal({ visible, current, onSelect, onClose, isDar
             { backgroundColor: th.bg, transform: [{ translateY }] },
           ]}
         >
-          <View {...panHandlers}>
+          <View style={styles.dragRegion} {...panHandlers}>
             <View style={[styles.handle, { backgroundColor: th.handle }]} />
             <Text style={[styles.title, { color: th.title }]}>🌍</Text>
           </View>
@@ -114,15 +114,9 @@ export function LanguagePickerModal({ visible, current, onSelect, onClose, isDar
             }}
           />
 
-          <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 20) }]}>
-            <TouchableOpacity
-              style={[styles.cancelBtn, { backgroundColor: th.cancelBg }]}
-              onPress={onClose}
-              activeOpacity={0.75}
-            >
-              <Text style={[styles.cancelText, { color: th.cancelText }]}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
+          {/* Bottom safe-area spacer — no Cancel button; dismiss via
+              backdrop tap or swipe-down. */}
+          <View style={{ height: Math.max(insets.bottom, 20) }} />
         </Animated.View>
       </View>
     </Modal>
@@ -139,6 +133,11 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     paddingTop: 12,
     maxHeight: '80%',
+  },
+  dragRegion: {
+    // Enlarged hit area — drag anywhere in the top block to dismiss.
+    paddingTop: 6,
+    paddingBottom: 8,
   },
   handle: {
     width: 40,

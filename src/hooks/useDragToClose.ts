@@ -53,8 +53,14 @@ export function useDragToClose(
 
   const panResponder = useRef(
     PanResponder.create({
-      // Claim the gesture only for meaningful downward drags.
+      // Claim the gesture only for meaningful downward drags. Both bubble
+      // and capture phases are wired — capture lets us hijack a downward
+      // drag that starts on a child touchable (a tap moves <6px so buttons
+      // still fire, but as soon as the finger crosses the threshold
+      // downward the sheet takes over and the button is cancelled).
       onMoveShouldSetPanResponder: (_, gs) =>
+        gs.dy > 6 && Math.abs(gs.dy) > Math.abs(gs.dx),
+      onMoveShouldSetPanResponderCapture: (_, gs) =>
         gs.dy > 6 && Math.abs(gs.dy) > Math.abs(gs.dx),
       onPanResponderMove: (_, gs) => {
         if (gs.dy > 0) translateY.setValue(gs.dy);

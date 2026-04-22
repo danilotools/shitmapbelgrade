@@ -56,6 +56,14 @@ export function PooPinMarker({ pin, onPress, isNearby = false, opacity = 1 }: Pr
   const level = Math.max(1, Math.min(5, pin.level ?? 3));
   const fontSize = 20 + (level - 1) * 5; // 20,25,30,35,40
 
+  // The native Marker snapshot on Android clips any pixels drawn outside
+  // the container bounds, so the container has to be large enough to hold:
+  //   fontSize × 1.35 (pulse scale when isNearby) × ~1.25 (text line-box
+  //   metrics + emoji glyph overshoot).
+  // We also pad the bottom a touch so the brown tip of the emoji isn't
+  // clipped — Android Text likes to place emojis toward the top of the line.
+  const cellSize = Math.ceil(fontSize * 1.9);
+
   return (
     <Marker
       coordinate={{ latitude: pin.latitude, longitude: pin.longitude }}
@@ -64,8 +72,18 @@ export function PooPinMarker({ pin, onPress, isNearby = false, opacity = 1 }: Pr
       anchor={{ x: 0.5, y: 0.5 }}
       calloutEnabled={false}
     >
-      <View style={[styles.container, { opacity }]}>
-        <Animated.Text style={[styles.emoji, { fontSize, transform: [{ scale }] }]}>
+      <View style={[styles.container, { width: cellSize, height: cellSize, opacity }]}>
+        <Animated.Text
+          allowFontScaling={false}
+          style={[
+            styles.emoji,
+            {
+              fontSize,
+              lineHeight: Math.ceil(fontSize * 1.25),
+              transform: [{ scale }],
+            },
+          ]}
+        >
           💩
         </Animated.Text>
       </View>
@@ -77,10 +95,13 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 56,
-    height: 56,
+    // Container is sized dynamically above — width/height come from props.
+    overflow: 'visible',
   },
   emoji: {
-    fontSize: 28,
-  },
+    textAlign: 'center',
+    // Android only: kills the extra font padding that otherwise clips the
+    // bottom of the emoji glyph when lineHeight is tight.
+    includeFontPadding: false,
+  } as any,
 });

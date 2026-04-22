@@ -103,8 +103,6 @@ interface Props {
   onLanguageChange: (lang: Language) => void;
   isDark: boolean;
   onDarkModeToggle: (val: boolean) => void;
-  notificationsEnabled: boolean;
-  onNotificationsToggle: (val: boolean) => void;
   myPins: PooPin[];
   onGoToPin: (pin: PooPin) => void;
   onDeletePin: (pin: PooPin) => void;
@@ -119,8 +117,6 @@ export function MenuSheet({
   onLanguageChange,
   isDark,
   onDarkModeToggle,
-  notificationsEnabled,
-  onNotificationsToggle,
   myPins,
   onGoToPin,
   onDeletePin,
@@ -164,8 +160,10 @@ export function MenuSheet({
             { backgroundColor: th.bg, transform: [{ translateY }] },
           ]}
         >
-          {/* Drag region — handle + title respond to downward pan */}
-          <View {...panHandlers}>
+          {/* Drag region — handle + title respond to downward pan. Kept
+              outside the ScrollView so vertical drags here don't fight
+              the scroll gesture inside. */}
+          <View style={styles.dragRegion} {...panHandlers}>
             <View style={[styles.handle, { backgroundColor: th.handle }]} />
             <Text style={[styles.title, { color: th.title }]}>{t.menuTitle}</Text>
           </View>
@@ -206,21 +204,6 @@ export function MenuSheet({
               <Switch
                 value={isDark}
                 onValueChange={onDarkModeToggle}
-                trackColor={{ false: th.switchFalse, true: th.switchTrue }}
-                thumbColor={th.switchThumb}
-              />
-            </View>
-
-            {/* ── Notifications ── */}
-            <View style={[styles.divider, { backgroundColor: th.divider }]} />
-            <View style={styles.row}>
-              <View style={styles.rowText}>
-                <Text style={[styles.rowLabel, { color: th.rowLabel }]}>{t.menuNotifications}</Text>
-                <Text style={[styles.rowDesc,  { color: th.rowDesc  }]}>{t.menuNotificationsDesc}</Text>
-              </View>
-              <Switch
-                value={notificationsEnabled}
-                onValueChange={onNotificationsToggle}
                 trackColor={{ false: th.switchFalse, true: th.switchTrue }}
                 thumbColor={th.switchThumb}
               />
@@ -312,6 +295,14 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingTop: 12,
+    paddingHorizontal: 24,
+  },
+  dragRegion: {
+    // Generous hit area so users can grab from anywhere near the top of
+    // the sheet, not just the tiny 40-px handle bar.
+    paddingTop: 6,
+    paddingBottom: 8,
+    marginHorizontal: -24, // extend the drag zone to the sheet edges
     paddingHorizontal: 24,
   },
   handle: {

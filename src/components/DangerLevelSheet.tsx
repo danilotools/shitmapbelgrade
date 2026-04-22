@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { Language, translations } from '../i18n/translations';
 import { useDragToClose } from '../hooks/useDragToClose';
+import { LevelPill } from './LevelPill';
 
 interface Props {
   visible: boolean;
@@ -98,6 +99,7 @@ export function DangerLevelSheet({
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
 
         <Animated.View
+          {...panHandlers}
           style={[
             styles.sheet,
             {
@@ -107,7 +109,7 @@ export function DangerLevelSheet({
             },
           ]}
         >
-          <View {...panHandlers}>
+          <View>
             <View style={[styles.handle, { backgroundColor: th.handle }]} />
             <Text style={[styles.title, { color: th.title }]}>{t.dangerLevelTitle}</Text>
             <Text style={[styles.hint,  { color: th.hint  }]}>{t.dangerLevelHint}</Text>
@@ -137,12 +139,12 @@ export function DangerLevelSheet({
             })}
           </View>
 
-          <Text style={[styles.levelLabel, { color: th.label }]}>
-            {t.dangerLevelLabels[level - 1]}
-          </Text>
-          <Text style={[styles.levelSuffix, { color: th.hint }]}>
-            {t.levelSuffix(level)}
-          </Text>
+          <LevelPill
+            level={level}
+            isDark={isDark}
+            language={language}
+            style={styles.levelPill}
+          />
 
           <TouchableOpacity
             style={[styles.confirmBtn, { backgroundColor: th.confirmBg }]}
@@ -210,15 +212,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  levelLabel: {
-    fontWeight: '700',
-    fontSize: 18,
-    marginTop: 4,
-  },
-  levelSuffix: {
-    fontWeight: '400',
-    fontSize: 12,
-    marginBottom: 20,
+  levelPill: {
+    marginTop: 8,
+    marginBottom: 22,
   },
   confirmBtn: {
     paddingHorizontal: 32,

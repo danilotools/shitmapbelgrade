@@ -22,6 +22,7 @@ import { PooPin } from '../types';
 import { REMOVAL_VOTES_REQUIRED } from '../constants';
 import { Language, translations } from '../i18n/translations';
 import { useDragToClose } from '../hooks/useDragToClose';
+import { LevelPill } from './LevelPill';
 
 interface Props {
   pin: PooPin | null;
@@ -129,6 +130,7 @@ export function PinDetailSheet({
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
 
         <Animated.View
+          {...panHandlers}
           style={[
             styles.sheet,
             {
@@ -138,8 +140,10 @@ export function PinDetailSheet({
             },
           ]}
         >
-          {/* Drag region — the handle + emoji header respond to vertical pan */}
-          <View style={styles.dragRegion} {...panHandlers}>
+          {/* The whole sheet is draggable — PanResponder captures the gesture
+              as soon as the finger moves >6px vertically, so buttons still
+              fire on a tap but a swipe-down dismisses from anywhere. */}
+          <View style={styles.dragRegion}>
             <View style={[styles.handle, { backgroundColor: th.handle }]} />
             <Text style={styles.emoji}>💩</Text>
 
@@ -151,12 +155,13 @@ export function PinDetailSheet({
               {t.droppedAgo(formatAge(pin.createdAt))}
             </Text>
 
-            {/* Danger-level label — legacy pins without a level default to 3 */}
-            <Text style={[styles.levelLabel, { color: th.age }]}>
-              {t.dangerLevelLabels[Math.max(0, Math.min(4, (pin.level ?? 3) - 1))]}
-              {'  ·  '}
-              {t.levelSuffix(pin.level ?? 3)}
-            </Text>
+            {/* Danger-level pill — legacy pins without a level default to 3 */}
+            <LevelPill
+              level={pin.level}
+              isDark={isDark}
+              language={language}
+              style={styles.levelPill}
+            />
           </View>
 
           {isOwnPin ? (
@@ -264,11 +269,9 @@ const styles = StyleSheet.create({
   age: {
     fontWeight: '400',
     fontSize: 16,
-    marginBottom: 4,
+    marginBottom: 10,
   },
-  levelLabel: {
-    fontWeight: '500',
-    fontSize: 13,
+  levelPill: {
     marginBottom: 20,
   },
   votes: {

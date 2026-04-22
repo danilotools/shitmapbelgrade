@@ -39,7 +39,6 @@ import { PROXIMITY_ALERT_RADIUS_M, SPAM_MAX_PINS } from '../constants';
 import { DARK_MAP_STYLE, LIGHT_MAP_STYLE } from '../constants/darkMapStyle';
 import { getStoredLanguage, storeLanguage } from '../services/languageService';
 import { Language, translations } from '../i18n/translations';
-import { getNotificationsEnabled, setNotificationsEnabled } from '../services/notificationPreference';
 import { getDarkModePreference, setDarkModePreference } from '../services/darkModeService';
 
 const BELGRADE_REGION = {
@@ -55,7 +54,6 @@ const INITIAL_FIT_RADIUS_M = 20_000;
 export function MapScreen() {
   const mapRef = useRef<MapView>(null);
   const [language, setLanguage] = useState<Language>('en');
-  const [notificationsEnabled, setNotificationsEnabledState] = useState(true);
   const [menuVisible, setMenuVisible] = useState(false);
   const [deviceId, setDeviceId] = useState('');
   const [dropping, setDropping] = useState(false);
@@ -83,12 +81,11 @@ export function MapScreen() {
       ? { latitude: location.latitude, longitude: location.longitude }
       : null;
 
-  useProximityAlerts(userCoord, location.heading ?? 0, pins, deviceId, notificationsEnabled);
+  useProximityAlerts(userCoord, location.heading ?? 0, pins, deviceId);
 
   useEffect(() => {
     getDeviceId().then(setDeviceId);
     getStoredLanguage().then((lang) => { if (lang) setLanguage(lang); });
-    getNotificationsEnabled().then(setNotificationsEnabledState);
     getDarkModePreference().then(setIsDark);
   }, []);
 
@@ -99,11 +96,6 @@ export function MapScreen() {
   const handleLanguageChange = async (lang: Language) => {
     await storeLanguage(lang);
     setLanguage(lang);
-  };
-
-  const handleNotificationsToggle = async (val: boolean) => {
-    setNotificationsEnabledState(val);
-    await setNotificationsEnabled(val);
   };
 
   const handleGoToPin = (pin: PooPin) => {
@@ -415,8 +407,6 @@ export function MapScreen() {
         onLanguageChange={handleLanguageChange}
         isDark={isDark}
         onDarkModeToggle={handleToggleDarkMode}
-        notificationsEnabled={notificationsEnabled}
-        onNotificationsToggle={handleNotificationsToggle}
         myPins={myPins}
         onGoToPin={handleGoToPin}
         onDeletePin={handleDeletePinFromMenu}
