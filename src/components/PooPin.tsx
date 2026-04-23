@@ -1,9 +1,15 @@
 /**
- * A single 💩 map marker.
- * When `isNearby` is true the emoji gently pulses in size.
+ * A single map marker — solid brown square whose size scales with the pin's
+ * danger level (1-5). Pulses via opacity when `isNearby` is true.
+ *
+ * Structure: one Animated.View, no nesting, no scale transform. Previous
+ * versions used a scale animation inside an oversized container, but on
+ * Android react-native-maps was clipping the scaled child out of the native
+ * marker bitmap at the larger sizes. A single flat view of a fixed size is
+ * the only reliable layout.
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import { Animated } from 'react-native';
 import { Marker } from 'react-native-maps';
 import { PooPin as PooPinType } from '../types';
 
@@ -15,11 +21,10 @@ interface Props {
 }
 
 export function PooPinMarker({ pin, onPress, isNearby = false, opacity = 1 }: Props) {
-  const scale = useRef(new Animated.Value(1)).current;
+  const pulse = useRef(new Animated.Value(1)).current;
 
-  // react-native-maps on Android renders a blank marker if tracksViewChanges
-  // is false on mount — it snapshots the native view before the child emoji
-  // has drawn. Keep tracking on briefly, then flip off for performance.
+  // Keep tracksViewChanges on briefly at mount so Android snapshots the view
+  // AFTER children have drawn — otherwise the marker renders blank.
   const [tracking, setTracking] = useState(true);
   useEffect(() => {
     const t = setTimeout(() => setTracking(false), 800);
@@ -28,41 +33,25 @@ export function PooPinMarker({ pin, onPress, isNearby = false, opacity = 1 }: Pr
 
   useEffect(() => {
     if (!isNearby) {
-      scale.setValue(1);
+      pulse.setValue(1);
       return;
     }
-
-    const animation = Animated.loop(
+    const anim = Animated.loop(
       Animated.sequence([
-        Animated.timing(scale, {
-          toValue: 1.35,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-        Animated.timing(scale, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: true,
-        }),
+        Animated.timing(pulse, { toValue: 0.55, duration: 600, useNativeDriver: false }),
+        Animated.timing(pulse, { toValue: 1,    duration: 600, useNativeDriver: false }),
       ]),
     );
+    anim.start();
+    return () => anim.stop();
+  }, [isNearby, pulse]);
 
-    animation.start();
-    return () => animation.stop();
-  }, [isNearby, scale]);
-
-  // Danger-level 1-5 scales the emoji from small to enormous. Legacy pins
-  // without a level fall back to 3 (medium) via type-level default.
+  // Level 1..5 → box edge 16..28 px (kept modest so Android's marker
+  // snapshot never clips regardless of screen density).
   const level = Math.max(1, Math.min(5, pin.level ?? 3));
-  const fontSize = 20 + (level - 1) * 5; // 20,25,30,35,40
+  const boxSize = 16 + (level - 1) * 3; // 16,19,22,25,28
 
-  // The native Marker snapshot on Android clips any pixels drawn outside
-  // the container bounds, so the container has to be large enough to hold:
-  //   fontSize × 1.35 (pulse scale when isNearby) × ~1.25 (text line-box
-  //   metrics + emoji glyph overshoot).
-  // We also pad the bottom a touch so the brown tip of the emoji isn't
-  // clipped — Android Text likes to place emojis toward the top of the line.
-  const cellSize = Math.ceil(fontSize * 1.9);
+  const combinedOpacity = Animated.multiply(new Animated.Value(opacity), pulse);
 
   return (
     <Marker
@@ -72,36 +61,17 @@ export function PooPinMarker({ pin, onPress, isNearby = false, opacity = 1 }: Pr
       anchor={{ x: 0.5, y: 0.5 }}
       calloutEnabled={false}
     >
-      <View style={[styles.container, { width: cellSize, height: cellSize, opacity }]}>
-        <Animated.Text
-          allowFontScaling={false}
-          style={[
-            styles.emoji,
-            {
-              fontSize,
-              lineHeight: Math.ceil(fontSize * 1.25),
-              transform: [{ scale }],
-            },
-          ]}
-        >
-          💩
-        </Animated.Text>
-      </View>
+      <Animated.View
+        style={{
+          width: boxSize,
+          height: boxSize,
+          backgroundColor: '#6B3F1D',
+          borderRadius: 3,
+          borderWidth: 1.5,
+          borderColor: '#ffffff',
+          opacity: combinedOpacity,
+        }}
+      />
     </Marker>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    // Container is sized dynamically above — width/height come from props.
-    overflow: 'visible',
-  },
-  emoji: {
-    textAlign: 'center',
-    // Android only: kills the extra font padding that otherwise clips the
-    // bottom of the emoji glyph when lineHeight is tight.
-    includeFontPadding: false,
-  } as any,
-});

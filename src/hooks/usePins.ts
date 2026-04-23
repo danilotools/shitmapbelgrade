@@ -46,9 +46,17 @@ function parseDoc(doc: any): PooPin | null {
   }
 }
 
-export function usePins(): { pins: PooPin[]; refresh: () => void } {
+export function usePins(): {
+  pins: PooPin[];
+  refresh: () => void;
+  removeLocal: (id: string) => void;
+} {
   const [pins, setPins] = useState<PooPin[]>([]);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // IDs we've locally removed (delete / vote-accepted). Keeps the pin from
+  // popping back on the next poll in the window between the Firestore
+  // delete being accepted by the server and the REST list reflecting it.
+  const removedIdsRef = useRef<Set<string>>(new Set());
 
   const fetchPins = useCallback(async () => {
     try {
@@ -58,11 +66,33 @@ export function usePins(): { pins: PooPin[]; refresh: () => void } {
       const now  = Date.now();
       const next = ((data.documents ?? []) as any[])
         .map(parseDoc)
-        .filter((p): p is PooPin => p !== null && p.expiresAt > now);
+        .filter((p): p is PooPin => p !== null && p.expiresAt > now)
+        .filter((p) => !removedIdsRef.current.has(p.id));
+
+      // If the server confirms a locally-removed pin is gone, we can stop
+      // tracking it — keeps the set from growing unboundedly.
+      if (removedIdsRef.current.size > 0) {
+        const stillPresent = new Set(
+          ((data.documents ?? []) as any[])
+            .map((d: any) => (d.name as string).split('/').pop() as string),
+        );
+        for (const id of Array.from(removedIdsRef.current)) {
+          if (!stillPresent.has(id)) removedIdsRef.current.delete(id);
+        }
+      }
+
       setPins(next);
     } catch {
       // Network blip — keep showing last known pins
     }
+  }, []);
+
+  // Optimistic removal — call this the instant the user taps delete. The
+  // pin disappears from the map and from "My pins" immediately, without
+  // waiting for the Firestore round-trip.
+  const removeLocal = useCallback((id: string) => {
+    removedIdsRef.current.add(id);
+    setPins((prev) => prev.filter((p) => p.id !== id));
   }, []);
 
   useEffect(() => {
@@ -73,5 +103,5 @@ export function usePins(): { pins: PooPin[]; refresh: () => void } {
     };
   }, [fetchPins]);
 
-  return { pins, refresh: fetchPins };
+  return { pins, refresh: fetchPins, removeLocal };
 }

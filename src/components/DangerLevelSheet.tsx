@@ -72,7 +72,7 @@ export function DangerLevelSheet({
   const t = translations[language];
   const th = buildTheme(isDark);
   const insets = useSafeAreaInsets();
-  const { translateY, panHandlers } = useDragToClose(visible, onClose);
+  const { translateY, Gesture, RootView } = useDragToClose(visible, onClose);
 
   const [level, setLevel] = useState(3);
 
@@ -95,11 +95,12 @@ export function DangerLevelSheet({
 
   return (
     <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
+      <RootView>
       <View style={[styles.container, { backgroundColor: th.backdrop }]}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
 
+        <Gesture>
         <Animated.View
-          {...panHandlers}
           style={[
             styles.sheet,
             {
@@ -160,7 +161,9 @@ export function DangerLevelSheet({
             <Text style={[styles.cancelText, { color: th.cancelText }]}>{t.cancel}</Text>
           </TouchableOpacity>
         </Animated.View>
+        </Gesture>
       </View>
+      </RootView>
     </Modal>
   );
 }

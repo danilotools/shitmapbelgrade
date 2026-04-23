@@ -58,7 +58,7 @@ function buildTheme(dark: boolean) {
 export function LanguagePickerModal({ visible, current, onSelect, onClose, isDark = false }: Props) {
   const th = buildTheme(isDark);
   const insets = useSafeAreaInsets();
-  const { translateY, panHandlers } = useDragToClose(visible, onClose);
+  const { translateY, Gesture, RootView } = useDragToClose(visible, onClose);
 
   return (
     <Modal
@@ -67,6 +67,7 @@ export function LanguagePickerModal({ visible, current, onSelect, onClose, isDar
       animationType="fade"
       onRequestClose={onClose}
     >
+      <RootView>
       <View style={[styles.overlay, { backgroundColor: th.overlay }]}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
 
@@ -76,10 +77,12 @@ export function LanguagePickerModal({ visible, current, onSelect, onClose, isDar
             { backgroundColor: th.bg, transform: [{ translateY }] },
           ]}
         >
-          <View style={styles.dragRegion} {...panHandlers}>
-            <View style={[styles.handle, { backgroundColor: th.handle }]} />
-            <Text style={[styles.title, { color: th.title }]}>🌍</Text>
-          </View>
+          <Gesture>
+            <View style={styles.dragRegion}>
+              <View style={[styles.handle, { backgroundColor: th.handle }]} />
+              <Text style={[styles.title, { color: th.title }]}>🌍</Text>
+            </View>
+          </Gesture>
 
           <FlatList
             data={LANGUAGE_OPTIONS}
@@ -119,6 +122,7 @@ export function LanguagePickerModal({ visible, current, onSelect, onClose, isDar
           <View style={{ height: Math.max(insets.bottom, 20) }} />
         </Animated.View>
       </View>
+      </RootView>
     </Modal>
   );
 }

@@ -92,7 +92,7 @@ export function PinDetailSheet({
   };
 
   const insets = useSafeAreaInsets();
-  const { translateY, panHandlers } = useDragToClose(!!pin, onClose);
+  const { translateY, Gesture, RootView } = useDragToClose(!!pin, onClose);
 
   const deleteScaleAnim = useRef(new Animated.Value(1)).current;
   const removeScaleAnim = useRef(new Animated.Value(1)).current;
@@ -126,11 +126,12 @@ export function PinDetailSheet({
       animationType="fade"
       onRequestClose={onClose}
     >
+      <RootView>
       <View style={[styles.container, { backgroundColor: th.backdrop }]}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
 
+        <Gesture>
         <Animated.View
-          {...panHandlers}
           style={[
             styles.sheet,
             {
@@ -227,7 +228,9 @@ export function PinDetailSheet({
             </>
           )}
         </Animated.View>
+        </Gesture>
       </View>
+      </RootView>
     </Modal>
   );
 }

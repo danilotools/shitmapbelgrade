@@ -74,7 +74,7 @@ export function MapScreen() {
   const [settingsPressed, setSettingsPressed] = useState(false);
 
   const location = useLocation();
-  const { pins, refresh: refreshPins } = usePins();
+  const { pins, refresh: refreshPins, removeLocal: removePinLocal } = usePins();
 
   const userCoord =
     location.latitude !== null && location.longitude !== null
@@ -223,52 +223,47 @@ export function MapScreen() {
   }, [userCoord, deviceId, refreshDropsLeft, refreshPins, t]);
 
   const handleDeleteOwn = useCallback(
-    async (pin: PooPin) => {
+    (pin: PooPin) => {
+      // Optimistic: close the sheet, drop the pin from local state, refund
+      // the drop slot, buzz the haptic — all synchronously. Firestore gets
+      // the delete in the background; if it fails we log but don't roll
+      // back (the next poll will bring it back if the server still has it).
       setSelectedPin(null);
-      try {
-        await deletePin(pin.id);
-        await refundDrop();
-        await refreshDropsLeft();
-        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      } catch {
-        Alert.alert(t.error, t.deleteError);
-      }
+      removePinLocal(pin.id);
+      refundDrop().then(refreshDropsLeft);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      deletePin(pin.id).catch(() => Alert.alert(t.error, t.deleteError));
     },
-    [refreshDropsLeft],
+    [refreshDropsLeft, removePinLocal, t],
   );
 
   const handleDeletePinFromMenu = useCallback(
-    async (pin: PooPin) => {
-      try {
-        await deletePin(pin.id);
-        await refundDrop();
-        await refreshDropsLeft();
-        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      } catch {
-        Alert.alert(t.error, t.deleteError);
-      }
+    (pin: PooPin) => {
+      removePinLocal(pin.id);
+      refundDrop().then(refreshDropsLeft);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      deletePin(pin.id).catch(() => Alert.alert(t.error, t.deleteError));
     },
-    [refreshDropsLeft, t],
+    [refreshDropsLeft, removePinLocal, t],
   );
 
   const handleVoteRemove = useCallback(
-    async (pin: PooPin) => {
+    (pin: PooPin) => {
       setSelectedPin(null);
-      try {
-        const isOwnPin = pin.deviceId === deviceId;
-        const willBeDeleted = pin.removalVotes.length + 1 >= 2;
-        await voteToRemovePin(pin.id, deviceId, pin.removalVotes);
-        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        // Refund the drop slot if it was the user's own pin and it got deleted
-        if (isOwnPin && willBeDeleted) {
-          await refundDrop();
-          await refreshDropsLeft();
-        }
-      } catch {
-        Alert.alert(t.error, t.voteError);
-      }
+      const isOwnPin = pin.deviceId === deviceId;
+      const willBeDeleted = pin.removalVotes.length + 1 >= 2;
+      // Optimistically hide the pin if this vote will push it over the edge.
+      if (willBeDeleted) removePinLocal(pin.id);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      voteToRemovePin(pin.id, deviceId, pin.removalVotes)
+        .then(() => {
+          if (isOwnPin && willBeDeleted) {
+            return refundDrop().then(refreshDropsLeft);
+          }
+        })
+        .catch(() => Alert.alert(t.error, t.voteError));
     },
-    [deviceId, refreshDropsLeft],
+    [deviceId, refreshDropsLeft, removePinLocal, t],
   );
 
   return (

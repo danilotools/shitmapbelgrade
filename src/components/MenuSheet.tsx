@@ -124,7 +124,7 @@ export function MenuSheet({
   const t = translations[language];
   const th = buildTheme(isDark);
   const insets = useSafeAreaInsets();
-  const { translateY, panHandlers } = useDragToClose(visible, onClose);
+  const { translateY, Gesture, RootView } = useDragToClose(visible, onClose);
   const [addresses, setAddresses] = useState<Record<string, string>>({});
   const [langPickerOpen, setLangPickerOpen] = useState(false);
 
@@ -151,6 +151,7 @@ export function MenuSheet({
 
   return (
     <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
+      <RootView>
       <View style={styles.backdrop}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
 
@@ -163,10 +164,12 @@ export function MenuSheet({
           {/* Drag region — handle + title respond to downward pan. Kept
               outside the ScrollView so vertical drags here don't fight
               the scroll gesture inside. */}
-          <View style={styles.dragRegion} {...panHandlers}>
-            <View style={[styles.handle, { backgroundColor: th.handle }]} />
-            <Text style={[styles.title, { color: th.title }]}>{t.menuTitle}</Text>
-          </View>
+          <Gesture>
+            <View style={styles.dragRegion}>
+              <View style={[styles.handle, { backgroundColor: th.handle }]} />
+              <Text style={[styles.title, { color: th.title }]}>{t.menuTitle}</Text>
+            </View>
+          </Gesture>
 
           <ScrollView
             style={{ maxHeight: SCREEN_HEIGHT * 0.62 }}
@@ -271,6 +274,7 @@ export function MenuSheet({
           <View style={{ height: Math.max(insets.bottom, 28) }} />
         </Animated.View>
       </View>
+      </RootView>
 
       <LanguagePickerModal
         visible={langPickerOpen}
